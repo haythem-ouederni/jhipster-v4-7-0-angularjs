@@ -1,0 +1,19 @@
+version: '2'
+services:
+    jhipsterangularjs-app:
+        image: jhipsterangularjs
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATASOURCE_URL=jdbc:mariadb://jhipsterangularjs-mariadb:3306/jhipsterangularjs
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+            - SPRING_DATA_ELASTICSEARCH_CLUSTER_NODES=jhipsterangularjs-elasticsearch:9300
+        ports:
+            - 8080:8080
+    jhipsterangularjs-mariadb:
+        extends:
+            file: mariadb.yml
+            service: jhipsterangularjs-mariadb
+    jhipsterangularjs-elasticsearch:
+        extends:
+            file: elasticsearch.yml
+            service: jhipsterangularjs-elasticsearch
