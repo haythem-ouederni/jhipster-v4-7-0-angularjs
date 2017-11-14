@@ -22,7 +22,9 @@ var gulp = require('gulp'),
     KarmaServer = require('karma').Server,
     plumber = require('gulp-plumber'),
     changed = require('gulp-changed'),
-    gulpIf = require('gulp-if');
+    gulpIf = require('gulp-if'),
+    replace = require('gulp-string-replace'),
+    sassLint = require('gulp-sass-lint');
 
 var handleErrors = require('./gulp/handle-errors'),
     serve = require('./gulp/serve'),
@@ -35,6 +37,10 @@ var config = require('./gulp/config');
 
 gulp.task('clean', function () {
     return del([config.dist], { dot: true });
+});
+
+gulp.task('clean-template-cache', function () {
+    return del([config.dist + 'index-template.html'], { dot: true });
 });
 
 gulp.task('copy', ['copy:i18n', 'copy:fonts', 'copy:common']);
@@ -143,6 +149,24 @@ gulp.task('ngconstant:prod', function () {
     .pipe(gulp.dest(config.app + 'app/'));
 });
 
+function replaceIndexFunction(aReplacement) {
+    del([config.app + 'index.html'])
+        .then(function(paths) {
+            gulp.src([config.app + 'index-template.html']) // Any file globs are supported 
+                .pipe(replace(new RegExp('@base@', 'g'), aReplacement))
+                .pipe(rename('index.html'))
+                .pipe(gulp.dest(config.app));
+        });
+
+}
+gulp.task('replaceIndex:dev', function() {
+    replaceIndexFunction('/');
+});
+
+gulp.task('replaceIndex:prod', function() {
+    replaceIndexFunction('/jhipster-angular-js-app/');
+});
+
 // check app for eslint errors
 gulp.task('eslint', function () {
     return gulp.src(['gulpfile.js', config.app + 'app/**/*.js'])
@@ -162,6 +186,27 @@ gulp.task('eslint:fix', function () {
         .pipe(eslint.format())
         .pipe(gulpIf(util.isLintFixed, gulp.dest(config.app + 'app')));
 });
+
+// check app for sass-lint errors
+gulp.task('sassLint', function() {
+    return gulp.src([config.app + '**/*.s+(a|c)ss'])
+        .pipe(plumber({
+            errorHandler: handleErrors
+        }))
+        .pipe(sassLint({
+            options: {
+                formatter: 'stylish',
+                'merge-default-rules': true,
+                'output-file': null
+            },
+            configFile: '.sass-lint.yml'
+        }))
+        .pipe(sassLint.format())
+        .pipe(sassLint.failOnError());
+});
+
+// this tasks performs all the taks related to checking the code : eslint, sassLint,...
+gulp.task('linting', ['eslint', 'sassLint']);
 
 gulp.task('test', ['inject:test', 'ngconstant:dev'], function (done) {
     new KarmaServer({
@@ -195,17 +240,18 @@ gulp.task('watch', function () {
     gulp.watch(config.sassSrc, ['styles']);
     gulp.watch(config.app + 'content/images/**', ['images']);
     gulp.watch(config.app + 'app/**/*.js', ['inject:app']);
+    gulp.watch(config.app + 'index-template.html', ['replaceIndex:dev']);
     gulp.watch([config.app + '*.html', config.app + 'app/**', config.app + 'i18n/**']).on('change', browserSync.reload);
 });
 
-gulp.task('install', function () {
-    runSequence(['inject:dep', 'ngconstant:dev'], 'sass', 'copy:languages', 'inject:app', 'inject:troubleshoot');
+gulp.task('install', ['linting'], function () {
+    runSequence(['inject:dep', 'ngconstant:dev'], 'sass', 'copy:languages', 'inject:app', 'inject:troubleshoot', 'replaceIndex:dev');
 });
 
 gulp.task('serve', ['install'], serve);
 
-gulp.task('build', ['clean'], function (cb) {
-    runSequence(['copy', 'inject:vendor', 'ngconstant:prod', 'copy:languages'], 'inject:app', 'inject:troubleshoot', 'assets:prod', cb);
+gulp.task('build', ['linting', 'clean'], function (cb) {
+    runSequence(['copy', 'inject:vendor', 'ngconstant:prod', 'copy:languages'], 'inject:app', 'replaceIndex:prod', 'inject:troubleshoot', 'assets:prod', 'clean-template-cache', cb);
 });
 
 gulp.task('default', ['serve']);

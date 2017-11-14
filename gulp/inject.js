@@ -17,19 +17,18 @@ module.exports = {
     vendor: vendor,
     test: test,
     troubleshoot: troubleshoot
-}
+};
 
 function app() {
-    return gulp.src(config.app + 'index.html')
-        .pipe(inject(gulp.src(config.app + 'app/**/*.js')
-            .pipe(plumber({errorHandler: handleErrors}))
-            .pipe(naturalSort())
-            .pipe(angularFilesort()), {relative: true}))
+    return gulp
+        .src(config.app + 'index-template.html')
+        .pipe(inject(gulp.src(config.app + 'app/**/*.js').pipe(plumber({errorHandler: handleErrors})).pipe(naturalSort()).pipe(angularFilesort()), {relative: true}))
         .pipe(gulp.dest(config.app));
 }
 
 function vendor() {
-    var stream = gulp.src(config.app + 'index.html')
+    var stream = gulp
+        .src(config.app + 'index-template.html')
         .pipe(plumber({errorHandler: handleErrors}))
         .pipe(inject(gulp.src(bowerFiles(), {read: false}), {
             name: 'bower',
@@ -37,17 +36,18 @@ function vendor() {
         }))
         .pipe(gulp.dest(config.app));
 
-    return es.merge(stream, gulp.src(config.sassVendor)
-        .pipe(plumber({errorHandler: handleErrors}))
-        .pipe(inject(gulp.src(bowerFiles({filter:['**/*.{scss,sass}']}), {read: false}), {
-            name: 'bower',
-            relative: true
-        }))
-        .pipe(gulp.dest(config.scss)));
+    return es.merge(stream, gulp.src(config.sassVendor).pipe(plumber({errorHandler: handleErrors})).pipe(inject(gulp.src(bowerFiles({filter: ['**/*.{scss,sass}']}), {read: false}), {
+        name: 'bower',
+        relative: true,
+        transform: function (filepath, file, i, length) {
+            return '@import \'' + filepath + '\';';
+        }
+    })).pipe(gulp.dest(config.scss)));
 }
 
 function test() {
-    return gulp.src(config.test + 'karma.conf.js')
+    return gulp
+        .src(config.test + 'karma.conf.js')
         .pipe(plumber({errorHandler: handleErrors}))
         .pipe(inject(gulp.src(bowerFiles({includeDev: true, filter: ['**/*.js']}), {read: false}), {
             starttag: '// bower:js',
@@ -61,7 +61,8 @@ function test() {
 
 function troubleshoot() {
     /* this task removes the troubleshooting content from index.html*/
-    return gulp.src(config.app + 'index.html')
+    return gulp
+        .src(config.app + 'index-template.html')
         .pipe(plumber({errorHandler: handleErrors}))
         /* having empty src as we dont have to read any files*/
         .pipe(inject(gulp.src('', {read: false}), {

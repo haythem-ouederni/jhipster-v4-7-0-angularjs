@@ -1,0 +1,101 @@
+// See: http://eslint.org/
+// See: https://www.npmjs.com/package/eslint-plugin-angular
+// See: http://eslint.org/
+// See: https://www.npmjs.com/package/eslint-plugin-angular
+{
+  "extends": [
+    "eslint:recommended",
+    "angular"
+  ],
+  "plugins": [
+    "jasmine"
+  ],
+  "env": {
+    "node": true,
+    "browser": true,
+    "jasmine": true
+  },
+  // severity for a rule should be one of the following: 0 = off, 1 = warning, 2 = error
+  "rules": {
+    // coding style
+    "wrap-iife": [
+      2,
+      "inside"
+    ],
+    "eqeqeq": 0,
+    "no-use-before-define": [
+      2,
+      "nofunc"
+    ],
+    "no-unused-vars": [
+      2,
+      {
+        "vars": "local",
+        "args": "none",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "no-multi-str": 1,
+    "no-irregular-whitespace": 2,
+    "semi": [
+      2,
+      "always"
+    ],
+    "indent": 2,
+    // os/git options
+    // we want to run on all OSes
+    "linebreak-style": 0,
+    "eol-last": 2,
+    "angular/log": 0,
+    "angular/no-service-method": 0,
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "log"
+        ]
+      }
+    ],
+    "angular/controller-name": [
+      2,
+      "/^[A-Z][a-zA-Z0-9]*Controller$/"
+    ],
+    "angular/module-name": [
+      2,
+      "/^[a-z][a-zA-Z]*$/"
+    ],
+    "angular/constant-name": [
+      2,
+      "/^[A-Z][A-Z_]*$/"
+    ],
+    "angular/directive-name": [
+      2,
+      "/^[a-z][a-zA-Z]*$/"
+    ],
+    "angular/service-name": [
+      2,
+      "/^[a-z][a-zA-Z0-9]*$/",
+      {
+        "oldBehavior": false
+      }
+    ],
+    "angular/component-name": [
+      2,
+      "/^[a-z][a-zA-Z]*$/"
+    ],
+    "angular/factory-name": [
+      2,
+      "/^[a-z][a-zA-Z0-9]*$/"
+    ],
+    "angular/provider-name": [
+      2,
+      "/^[a-z][a-zA-Z0-9]*$/"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ]
+  }
+}

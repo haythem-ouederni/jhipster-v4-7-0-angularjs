@@ -54,6 +54,9 @@ Or do all of the above:
 
  ````
 
+### Important
+
+The main angular JS entry is index-template.html and not index.html which is generated using a gulp task from the first file. So if you want to edit something within the index.html, do it within the index-template.html file.
 
 ## Building for production
 
@@ -84,6 +87,7 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
 
 UI end-to-end tests are powered by [Protractor][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
 and can be run by starting Spring Boot in one terminal (`./mvnw spring-boot:run`) and running the tests (`gulp itest`) in a second one.
+
 ### Other tests
 
 Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
